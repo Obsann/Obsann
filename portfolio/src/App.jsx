@@ -144,8 +144,7 @@ function App() {
       <nav className="fixed top-0 left-0 w-full z-50">
         <div className="max-w-7xl mx-auto px-6 pt-6">
           <div className="rounded-full border border-white/5 backdrop-blur-md px-6 py-4 flex items-center justify-between bg-black/40 transition-all duration-300 hover:border-white/10 hover:bg-black/60 hover:shadow-[0_0_30px_rgba(0,0,0,0.5)]">
-            <div className="flex items-center gap-2">
-              <div className="w-2 h-2 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-sm"></div>
+            <div className="flex items-center gap-3">
               <span className="text-sm font-semibold tracking-tight heading-font text-white">OBSANN / DEV</span>
             </div>
             <div className="hidden md:flex gap-8 text-[11px] font-mono uppercase tracking-widest text-neutral-400">
