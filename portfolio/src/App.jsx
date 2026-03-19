@@ -11,7 +11,7 @@ function App() {
   const manifestoRef = useRef(null)
 
   useEffect(() => {
-    // Lenis smooth scroll
+    // Lenis smooth scroll — integrated with GSAP ticker for production safety
     const lenis = new Lenis({
       duration: 1.4,
       easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
@@ -21,11 +21,14 @@ function App() {
       touchMultiplier: 2,
     })
 
-    function raf(time) {
-      lenis.raf(time)
-      requestAnimationFrame(raf)
-    }
-    requestAnimationFrame(raf)
+    // Critical: sync Lenis scroll position with GSAP ScrollTrigger
+    lenis.on('scroll', ScrollTrigger.update)
+
+    // Run Lenis inside GSAP's ticker (not a separate RAF loop)
+    gsap.ticker.add((time) => {
+      lenis.raf(time * 1000)
+    })
+    gsap.ticker.lagSmoothing(0)
 
     // Shutter animation on load
     setTimeout(() => {
@@ -130,6 +133,8 @@ function App() {
 
     return () => {
       document.removeEventListener('mousemove', handleMouseMove)
+      lenis.off('scroll', ScrollTrigger.update)
+      gsap.ticker.remove((time) => { lenis.raf(time * 1000) })
       lenis.destroy()
       ScrollTrigger.getAll().forEach((trigger) => trigger.kill())
     }
