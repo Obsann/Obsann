@@ -233,27 +233,6 @@ body.hovering .cursor-dot {
   footer a[class*="text-[13vw]"] {
     font-size: 18vw;
   }
-
-  /* Process section — make vertical on mobile */
-  .process-wrapper {
-    height: auto !important;
-    overflow: visible !important;
-  }
-
-  .process-container {
-    flex-direction: column !important;
-    width: 100% !important;
-    height: auto !important;
-    transform: none !important;
-  }
-
-  .process-container > div {
-    width: 100% !important;
-    height: auto !important;
-    min-height: 60vh;
-    border-right: none !important;
-    border-bottom: 1px solid rgba(38, 38, 38, 0.5);
-  }
 }
 
 /* SMALL HEIGHT SCREENS */
