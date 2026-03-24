@@ -57,9 +57,23 @@
               <span class="absolute -bottom-1 left-0 w-0 h-[1px] bg-cyan-500 transition-all group-hover:w-full"></span>
             </a>
           </div>
+          <!-- Mobile Menu Button -->
+          <button id="menu-toggle" class="md:hidden flex flex-col gap-1.5 p-2 group" aria-label="Toggle menu">
+            <span class="block w-5 h-[1.5px] bg-white transition-all duration-300 origin-center" id="bar1"></span>
+            <span class="block w-5 h-[1.5px] bg-white transition-all duration-300" id="bar2"></span>
+            <span class="block w-3 h-[1.5px] bg-white transition-all duration-300 origin-center group-hover:w-5" id="bar3"></span>
+          </button>
         </div>
       </div>
     </nav>
+
+    <!-- Mobile Menu Overlay -->
+    <div id="mobile-menu" class="fixed inset-0 z-40 bg-black/95 backdrop-blur-xl flex flex-col items-center justify-center gap-8 opacity-0 pointer-events-none transition-all duration-500 md:hidden">
+      <a href="#about" class="mobile-link text-2xl font-mono uppercase tracking-widest text-neutral-400 hover:text-indigo-400 transition-all duration-300 translate-y-8 opacity-0">Skills</a>
+      <a href="#work" class="mobile-link text-2xl font-mono uppercase tracking-widest text-neutral-400 hover:text-emerald-400 transition-all duration-300 translate-y-8 opacity-0">Projects</a>
+      <a href="#process" class="mobile-link text-2xl font-mono uppercase tracking-widest text-neutral-400 hover:text-rose-400 transition-all duration-300 translate-y-8 opacity-0">Process</a>
+      <a href="#contact-section" class="mobile-link text-2xl font-mono uppercase tracking-widest text-neutral-400 hover:text-cyan-400 transition-all duration-300 translate-y-8 opacity-0">Contact</a>
+    </div>
 
     <!-- Hero -->
     <section
@@ -783,6 +797,54 @@
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
   <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
   <script src="script.js"></script>
+  <script>
+    // Mobile menu toggle
+    const menuToggle = document.getElementById('menu-toggle');
+    const mobileMenu = document.getElementById('mobile-menu');
+    const bar1 = document.getElementById('bar1');
+    const bar2 = document.getElementById('bar2');
+    const bar3 = document.getElementById('bar3');
+    const mobileLinks = document.querySelectorAll('.mobile-link');
+    let menuOpen = false;
+
+    function toggleMenu() {
+      menuOpen = !menuOpen;
+      if (menuOpen) {
+        mobileMenu.classList.remove('opacity-0', 'pointer-events-none');
+        mobileMenu.classList.add('opacity-100', 'pointer-events-auto');
+        bar1.style.transform = 'rotate(45deg) translate(2px, 2px)';
+        bar2.style.opacity = '0';
+        bar3.style.transform = 'rotate(-45deg) translate(3px, -3px)';
+        bar3.style.width = '1.25rem';
+        document.body.style.overflow = 'hidden';
+        mobileLinks.forEach((link, i) => {
+          setTimeout(() => {
+            link.style.transform = 'translateY(0)';
+            link.style.opacity = '1';
+          }, 100 + i * 80);
+        });
+      } else {
+        mobileMenu.classList.add('opacity-0', 'pointer-events-none');
+        mobileMenu.classList.remove('opacity-100', 'pointer-events-auto');
+        bar1.style.transform = '';
+        bar2.style.opacity = '1';
+        bar3.style.transform = '';
+        bar3.style.width = '';
+        document.body.style.overflow = '';
+        mobileLinks.forEach(link => {
+          link.style.transform = 'translateY(2rem)';
+          link.style.opacity = '0';
+        });
+      }
+    }
+
+    menuToggle.addEventListener('click', toggleMenu);
+    mobileLinks.forEach(link => {
+      link.addEventListener('click', () => {
+        if (menuOpen) toggleMenu();
+      });
+    });
+  </script>
 </body>
 
 </html>

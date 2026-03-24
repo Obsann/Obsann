@@ -187,3 +187,80 @@ body.hovering .cursor-dot {
   backdrop-filter: blur(12px);
   border: 1px solid rgba(255, 255, 255, 0.05);
 }
+
+/* TOUCH DEVICE — hide custom cursor, restore default */
+@media (hover: none) and (pointer: coarse) {
+  .cursor-dot {
+    display: none !important;
+  }
+  body {
+    cursor: auto;
+  }
+  * {
+    cursor: auto !important;
+  }
+}
+
+/* MOBILE RESPONSIVE FIXES */
+@media (max-width: 767px) {
+  /* Smaller marquee text on phones */
+  .marquee-content span {
+    font-size: 3.5rem !important;
+  }
+
+  /* Reduce manifesto section padding */
+  .py-40 {
+    padding-top: 6rem;
+    padding-bottom: 6rem;
+  }
+
+  /* Make bento grid stack cleaner */
+  .glass-card {
+    min-height: 180px;
+  }
+
+  /* Reduce work card spacing */
+  .space-y-40 > * + * {
+    margin-top: 5rem;
+  }
+
+  /* Smaller contact heading */
+  .glow-text {
+    font-size: 2.5rem;
+  }
+
+  /* Footer name size */
+  footer a[class*="text-[13vw]"] {
+    font-size: 18vw;
+  }
+
+  /* Process section — make vertical on mobile */
+  .process-wrapper {
+    height: auto !important;
+    overflow: visible !important;
+  }
+
+  .process-container {
+    flex-direction: column !important;
+    width: 100% !important;
+    height: auto !important;
+    transform: none !important;
+  }
+
+  .process-container > div {
+    width: 100% !important;
+    height: auto !important;
+    min-height: 60vh;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(38, 38, 38, 0.5);
+  }
+}
+
+/* SMALL HEIGHT SCREENS */
+@media (max-height: 600px) {
+  .min-h-screen {
+    min-height: auto;
+    padding-top: 6rem;
+    padding-bottom: 4rem;
+  }
+}
