@@ -182,9 +182,6 @@ Responsive ecommerce prototype — browse products, add to cart, and checkout.
 
 <div align="center">
 
-<img src="https://github-readme-stats.vercel.app/api?username=Obsann&show_icons=true&theme=tokyonight&hide_border=true&bg_color=030303&title_color=6366f1&icon_color=818cf8&text_color=a1a1aa&ring_color=6366f1" width="49%" />
-<img src="https://github-readme-streak-stats.herokuapp.com/?user=Obsann&theme=tokyonight&hide_border=true&background=030303&ring=6366f1&fire=a78bfa&currStreakLabel=e4e4e7&sideLabels=a1a1aa&currStreakNum=e4e4e7&dates=525252" width="49%" />
-
 <br><br>
 
 <img src="https://github-readme-stats.vercel.app/api/top-langs/?username=Obsann&layout=compact&theme=tokyonight&hide_border=true&bg_color=030303&title_color=6366f1&text_color=a1a1aa&langs_count=8" width="40%" />
