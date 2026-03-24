@@ -1,1189 +1,560 @@
-<html lang="en" class="antialiased">
-
+<!doctype html>
+<html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>OBSANN / DEV — Portfolio Active</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
-    <link
-        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&amp;family=Space+Grotesk:wght@400;500;600&amp;family=JetBrains+Mono:wght@400;500&amp;display=swap"
-        rel="stylesheet">
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.4/ScrollTrigger.min.js"></script>
-    <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
-    <style>
-        :root {
-            --bg-dark: #030303;
-            --line: #1f1f1f;
-        }
-
-        body {
-            background-color: var(--bg-dark);
-            color: #e4e4e7;
-            font-family: 'Inter', sans-serif;
-            overflow-x: hidden;
-            cursor: none;
-        }
-
-        .heading-font {
-            font-family: 'Space Grotesk', sans-serif;
-        }
-
-        .mono-font {
-            font-family: 'JetBrains Mono', monospace;
-        }
-
-        /* CUSTOM CURSOR */
-        .cursor-dot {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 20px;
-            height: 20px;
-            background-color: white;
-            border-radius: 50%;
-            pointer-events: none;
-            z-index: 9999;
-            transform: translate(-50%, -50%);
-            mix-blend-mode: difference;
-            transition: width 0.4s cubic-bezier(0.19, 1, 0.22, 1), height 0.4s cubic-bezier(0.19, 1, 0.22, 1);
-        }
-
-        body.hovering .cursor-dot {
-            width: 80px;
-            height: 80px;
-            background-color: white;
-            opacity: 0.9;
-            mix-blend-mode: difference;
-        }
-
-        /* TEXT REVEAL */
-        .shutter-wrapper {
-            overflow: hidden;
-            display: block;
-        }
-
-        .shutter-text {
-            display: block;
-            transform: translateY(110%);
-            transition: transform 1.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        .loaded .shutter-text {
-            transform: translateY(0);
-        }
-
-        /* GRID DRAWING */
-        .grid-cell {
-            position: relative;
-        }
-
-        .grid-cell::before,
-        .grid-cell::after {
-            content: '';
-            position: absolute;
-            background: linear-gradient(90deg, transparent, #333, transparent);
-            transition: all 1s ease-in-out;
-            opacity: 0.5;
-        }
-
-        .grid-cell::before {
-            top: 0;
-            left: 0;
-            width: 0%;
-            height: 1px;
-        }
-
-        .grid-cell::after {
-            top: 0;
-            left: 0;
-            width: 1px;
-            height: 0%;
-        }
-
-        .grid-cell.active::before {
-            width: 100%;
-        }
-
-        .grid-cell.active::after {
-            height: 100%;
-        }
-
-        /* IMAGE TRAIL */
-        .trail-img-wrapper {
-            position: fixed;
-            width: 300px;
-            height: 400px;
-            top: 0;
-            left: 0;
-            pointer-events: none;
-            z-index: 50;
-            opacity: 0;
-            transform: scale(0.8) translate(-50%, -50%) rotate(-5deg);
-            transition: opacity 0.4s ease, transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-            overflow: hidden;
-            border-radius: 8px;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
-        }
-
-        .trail-img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-        }
-
-        /* NOISE & GRADIENTS */
-        .noise {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            pointer-events: none;
-            z-index: 90;
-            opacity: 0.03;
-            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
-        }
-
-        .glow-text {
-            text-shadow: 0 0 30px rgba(255, 255, 255, 0.3);
-        }
-
-        /* SCROLL BAR */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: var(--bg-dark);
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: #333;
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: #555;
-        }
-
-        /* ANIMATIONS */
-        @keyframes scan {
-            0% {
-                top: 0;
-                opacity: 0
-            }
-
-            10% {
-                opacity: 1
-            }
-
-            90% {
-                opacity: 1
-            }
-
-            100% {
-                top: 100%;
-                opacity: 0
-            }
-        }
-
-        @keyframes data-flow {
-            0% {
-                transform: translateX(-100%)
-            }
-
-            100% {
-                transform: translateX(300%)
-            }
-        }
-
-        @keyframes pulse-ring {
-            0% {
-                transform: scale(0.8);
-                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0.7)
-            }
-
-            70% {
-                transform: scale(1);
-                box-shadow: 0 0 0 10px rgba(99, 102, 241, 0)
-            }
-
-            100% {
-                transform: scale(0.8);
-                box-shadow: 0 0 0 0 rgba(99, 102, 241, 0)
-            }
-        }
-
-        @keyframes dash {
-            to {
-                stroke-dashoffset: 0;
-            }
-        }
-
-        .animate-scan {
-            animation: scan 3s ease-in-out infinite
-        }
-
-        .animate-data-flow {
-            animation: data-flow 2.5s cubic-bezier(.4, 0, .2, 1) infinite
-        }
-
-        .animate-pulse-ring {
-            animation: pulse-ring 3s cubic-bezier(0.4, 0, 0.6, 1) infinite
-        }
-
-        .sparkline path {
-            stroke-dasharray: 1000;
-            stroke-dashoffset: 1000;
-            animation: dash 4s ease-out forwards;
-        }
-
-        .glass-card {
-            background: rgba(20, 20, 20, 0.4);
-            backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
-    </style>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>OBSANN / DEV — Portfolio Active</title>
+  <meta name="description" content="Full-Stack Developer portfolio — building web applications from concept to deployment." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="styles.css" />
 </head>
-
-<body class="selection:bg-indigo-500/30 selection:text-indigo-200">
-
-    <div class="cursor-dot"></div>
+<body>
+  <div class="selection:bg-indigo-500/30 selection:text-indigo-200">
+    <div class="cursor-dot" id="cursor"></div>
     <div class="noise"></div>
 
     <!-- Nav -->
     <nav class="fixed top-0 left-0 w-full z-50">
-        <div class="max-w-7xl mx-auto px-6 pt-6">
-            <div
-                class="rounded-full border border-white/5 backdrop-blur-md px-6 py-4 flex items-center justify-between bg-black/40 transition-all duration-300 hover:border-white/10 hover:bg-black/60 hover:shadow-[0_0_30px_rgba(0,0,0,0.5)]">
-                <!-- Left Logo -->
-                <div class="flex items-center gap-2">
-                    <div class="w-2 h-2 bg-gradient-to-tr from-indigo-500 to-purple-500 rounded-sm"></div>
-                    <span class="text-sm font-semibold tracking-tight heading-font text-white">OBSANN / DEV</span>
-                </div>
-
-                <!-- Middle Nav -->
-                <div class="hidden md:flex gap-8 text-[11px] font-mono uppercase tracking-widest text-neutral-400">
-                    <a href="#about" class="hover:text-indigo-400 transition-colors hover-trigger relative group">
-                        Skills
-                        <span
-                            class="absolute -bottom-1 left-0 w-0 h-[1px] bg-indigo-500 transition-all group-hover:w-full"></span>
-                    </a>
-                    <a href="#work" class="hover:text-emerald-400 transition-colors hover-trigger relative group">
-                        Projects
-                        <span
-                            class="absolute -bottom-1 left-0 w-0 h-[1px] bg-emerald-500 transition-all group-hover:w-full"></span>
-                    </a>
-                    <a href="#process" class="hover:text-rose-400 transition-colors hover-trigger relative group">
-                        Process
-                        <span
-                            class="absolute -bottom-1 left-0 w-0 h-[1px] bg-rose-500 transition-all group-hover:w-full"></span>
-                    </a>
-                    <a href="#contact" class="hover:text-cyan-400 transition-colors hover-trigger relative group">
-                        Contact
-                        <span
-                            class="absolute -bottom-1 left-0 w-0 h-[1px] bg-cyan-500 transition-all group-hover:w-full"></span>
-                    </a>
-                </div>
-
-                <!-- Right Status -->
-                <div
-                    class="flex items-center gap-3 text-[10px] font-mono uppercase tracking-wider text-neutral-500 bg-neutral-900/50 px-3 py-1.5 rounded-full border border-white/5">
-                    <span class="relative flex h-2 w-2">
-                        <span
-                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    <span class="text-neutral-300">System v2.4</span>
-                </div>
+      <div class="max-w-7xl mx-auto px-6 pt-6">
+        <div class="rounded-full border border-white/5 backdrop-blur-md px-6 py-4 flex items-center justify-between bg-black/40 transition-all duration-300 hover:border-white/10 hover:bg-black/60 hover:shadow-[0_0_30px_rgba(0,0,0,0.5)]">
+          <div class="flex items-center gap-3">
+            <div class="flex items-center gap-3 text-[10px] font-mono uppercase tracking-wider text-neutral-500 bg-neutral-900/50 px-3 py-1.5 rounded-full border border-white/5">
+              <span class="relative flex h-2 w-2">
+                <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+              </span>
             </div>
+            <span class="text-sm font-semibold tracking-tight heading-font text-white">OBSANN / DEV</span>
+          </div>
+          <div class="hidden md:flex gap-8 text-[11px] font-mono uppercase tracking-widest text-neutral-400">
+            <a href="#about" class="hover:text-indigo-400 transition-colors hover-trigger relative group">
+              Skills
+              <span class="absolute -bottom-1 left-0 w-0 h-[1px] bg-indigo-500 transition-all group-hover:w-full"></span>
+            </a>
+            <a href="#work" class="hover:text-emerald-400 transition-colors hover-trigger relative group">
+              Projects
+              <span class="absolute -bottom-1 left-0 w-0 h-[1px] bg-emerald-500 transition-all group-hover:w-full"></span>
+            </a>
+            <a href="#process" class="hover:text-rose-400 transition-colors hover-trigger relative group">
+              Process
+              <span class="absolute -bottom-1 left-0 w-0 h-[1px] bg-rose-500 transition-all group-hover:w-full"></span>
+            </a>
+            <a href="#contact-section" class="hover:text-cyan-400 transition-colors hover-trigger relative group">
+              Contact
+              <span class="absolute -bottom-1 left-0 w-0 h-[1px] bg-cyan-500 transition-all group-hover:w-full"></span>
+            </a>
+          </div>
         </div>
+      </div>
     </nav>
 
     <!-- Hero -->
-    <section
-        class="min-h-screen flex flex-col md:px-12 border-neutral-900/50 border-b pt-24 pr-6 pl-6 relative justify-center bg-[#030303] overflow-hidden">
-
-        <!-- Animated Gradients -->
-        <div
-            class="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none mix-blend-screen animate-pulse-ring">
+    <section class="min-h-screen flex flex-col md:px-12 border-neutral-900/50 border-b pt-24 pr-6 pl-6 relative justify-center bg-[#030303] overflow-hidden">
+      <div class="absolute top-0 right-0 w-[800px] h-[800px] bg-indigo-600/10 rounded-full blur-[120px] pointer-events-none mix-blend-screen animate-pulse-ring"></div>
+      <div class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-cyan-600/5 rounded-full blur-[100px] pointer-events-none mix-blend-screen"></div>
+      <div class="max-w-7xl mx-auto w-full z-10">
+        <div class="mb-10 overflow-hidden">
+          <div class="inline-flex items-center gap-2 px-3 py-1 rounded border border-white/10 bg-white/5 backdrop-blur-sm shutter-wrapper">
+            <span class="shutter-text text-[10px] mono-font text-indigo-300 uppercase tracking-widest">
+              Available for Hire
+            </span>
+          </div>
         </div>
-        <div
-            class="absolute bottom-0 left-0 w-[600px] h-[600px] bg-cyan-600/5 rounded-full blur-[100px] pointer-events-none mix-blend-screen">
-        </div>
-
-        <div class="max-w-7xl mx-auto w-full z-10">
-            <div class="mb-10 overflow-hidden">
-                <div
-                    class="inline-flex items-center gap-2 px-3 py-1 rounded border border-white/10 bg-white/5 backdrop-blur-sm shutter-wrapper">
-                    <span class="shutter-text text-[10px] mono-font text-indigo-300 uppercase tracking-widest">
-                        Available for Hire
-                    </span>
-                </div>
+        <h1 class="text-6xl md:text-8xl lg:text-[10rem] font-medium tracking-tighter leading-[0.85] text-white uppercase mb-12 heading-font">
+          <div class="shutter-wrapper">
+            <span class="shutter-text bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-neutral-500">Full-Stack</span>
+          </div>
+          <div class="shutter-wrapper flex items-center gap-4 md:gap-8">
+            <span class="shutter-text text-neutral-700 italic font-serif">Developer</span>
+            <div class="h-[2px] w-12 md:w-32 bg-indigo-500 shutter-text"></div>
+          </div>
+          <div class="shutter-wrapper">
+            <span class="shutter-text bg-clip-text text-transparent bg-gradient-to-br from-neutral-200 to-neutral-600">&amp; Builder</span>
+          </div>
+        </h1>
+        <div class="flex flex-col md:flex-row justify-between items-end border-t border-white/10 pt-10 w-full backdrop-blur-sm">
+          <div class="max-w-lg text-sm md:text-base text-neutral-400 leading-relaxed mb-8 md:mb-0 shutter-wrapper delay-500">
+            <span class="shutter-text">
+              Building web applications from concept to deployment.
+              Merging <span class="text-white">problem-solving</span> with <span class="text-white">creative design</span>.
+            </span>
+          </div>
+          <a href="#work" class="group flex items-center gap-6 hover-trigger">
+            <div class="relative">
+              <div class="absolute inset-0 bg-indigo-500 blur opacity-20 group-hover:opacity-40 transition-opacity"></div>
+              <div class="w-14 h-14 border border-white/10 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
+                <svg class="w-5 h-5 text-white group-hover:rotate-45 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M7 17L17 7"></path>
+                  <path d="M7 7h10v10"></path>
+                </svg>
+              </div>
             </div>
-
-            <h1
-                class="text-6xl md:text-8xl lg:text-[10rem] font-medium tracking-tighter leading-[0.85] text-white uppercase mb-12 heading-font">
-                <div class="shutter-wrapper">
-                    <span
-                        class="shutter-text bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-neutral-500">Full-Stack</span>
-                </div>
-                <div class="shutter-wrapper flex items-center gap-4 md:gap-8">
-                    <span class="shutter-text text-neutral-700 italic font-serif">Developer</span>
-                    <div class="h-[2px] w-12 md:w-32 bg-indigo-500 shutter-text"></div>
-                </div>
-                <div class="shutter-wrapper">
-                    <span
-                        class="shutter-text bg-clip-text text-transparent bg-gradient-to-br from-neutral-200 to-neutral-600">&amp;
-                        Builder</span>
-                </div>
-            </h1>
-
-            <div
-                class="flex flex-col md:flex-row justify-between items-end border-t border-white/10 pt-10 w-full backdrop-blur-sm">
-                <div
-                    class="max-w-lg text-sm md:text-base text-neutral-400 leading-relaxed mb-8 md:mb-0 shutter-wrapper delay-500">
-                    <span class="shutter-text">
-                        Building web applications from concept to deployment.
-                        Merging <span class="text-white">problem-solving</span> with <span class="text-white">creative
-                            design</span>.
-                    </span>
-                </div>
-
-                <a href="#work" class="group flex items-center gap-6 hover-trigger">
-                    <div class="relative">
-                        <div
-                            class="absolute inset-0 bg-indigo-500 blur opacity-20 group-hover:opacity-40 transition-opacity">
-                        </div>
-                        <div
-                            class="w-14 h-14 border border-white/10 rounded-full flex items-center justify-center bg-black/50 backdrop-blur-sm group-hover:scale-110 transition-transform duration-300">
-                            <svg class="w-5 h-5 text-white group-hover:rotate-45 transition-transform duration-500"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M7 17L17 7"></path>
-                                <path d="M7 7h10v10"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <span
-                        class="text-xs font-mono uppercase tracking-widest text-neutral-500 group-hover:text-indigo-400 transition-colors">
-                        Explore Work
-                    </span>
-                </a>
-            </div>
+            <span class="text-xs font-mono uppercase tracking-widest text-neutral-500 group-hover:text-indigo-400 transition-colors">
+              Explore Work
+            </span>
+          </a>
         </div>
+      </div>
     </section>
 
     <!-- Marquee -->
-    <div
-        class="py-16 bg-[#030303] overflow-hidden whitespace-nowrap border-b border-neutral-900/50 marquee-container relative z-10">
-        <div class="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#030303] to-transparent z-10"></div>
-        <div class="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[#030303] to-transparent z-10"></div>
-
-        <div
-            class="inline-flex items-center gap-16 marquee-content opacity-50 hover:opacity-100 transition-opacity duration-500">
-            <span
-                class="text-7xl md:text-8xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-neutral-700 to-neutral-900 tracking-tighter heading-font uppercase stroke-text hover:from-white hover:to-neutral-400 transition-all">JavaScript</span>
-            <span
-                class="text-7xl md:text-8xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-neutral-800 to-neutral-950 tracking-tighter heading-font uppercase stroke-text hover:from-indigo-400 hover:to-indigo-900 transition-all">TypeScript</span>
-            <span
-                class="text-7xl md:text-8xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-neutral-700 to-neutral-900 tracking-tighter heading-font uppercase stroke-text hover:from-white hover:to-neutral-400 transition-all">React</span>
-            <span
-                class="text-7xl md:text-8xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-neutral-800 to-neutral-950 tracking-tighter heading-font uppercase stroke-text hover:from-cyan-400 hover:to-cyan-900 transition-all">Node.js</span>
-            <span
-                class="text-7xl md:text-8xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-neutral-700 to-neutral-900 tracking-tighter heading-font uppercase stroke-text hover:from-white hover:to-neutral-400 transition-all">PHP</span>
-            <span
-                class="text-7xl md:text-8xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-neutral-800 to-neutral-950 tracking-tighter heading-font uppercase stroke-text hover:from-emerald-400 hover:to-emerald-900 transition-all">Java</span>
-            <span
-                class="text-7xl md:text-8xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-neutral-700 to-neutral-900 tracking-tighter heading-font uppercase stroke-text hover:from-rose-400 hover:to-rose-900 transition-all">CSS</span>
-        </div>
+    <div class="py-16 bg-[#030303] overflow-hidden whitespace-nowrap border-b border-neutral-900/50 marquee-container relative z-10">
+      <div class="absolute inset-y-0 left-0 w-32 bg-gradient-to-r from-[#030303] to-transparent z-10"></div>
+      <div class="absolute inset-y-0 right-0 w-32 bg-gradient-to-l from-[#030303] to-transparent z-10"></div>
+      <div class="inline-flex items-center gap-16 marquee-content opacity-50 hover:opacity-100 transition-opacity duration-500">
+        <span class="text-7xl md:text-8xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-neutral-700 to-neutral-900 tracking-tighter heading-font uppercase stroke-text hover:from-white hover:to-neutral-400 transition-all">JavaScript</span>
+        <span class="text-7xl md:text-8xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-neutral-800 to-neutral-950 tracking-tighter heading-font uppercase stroke-text hover:from-indigo-400 hover:to-indigo-900 transition-all">TypeScript</span>
+        <span class="text-7xl md:text-8xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-neutral-700 to-neutral-900 tracking-tighter heading-font uppercase stroke-text hover:from-white hover:to-neutral-400 transition-all">React</span>
+        <span class="text-7xl md:text-8xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-neutral-800 to-neutral-950 tracking-tighter heading-font uppercase stroke-text hover:from-cyan-400 hover:to-cyan-900 transition-all">Node.js</span>
+        <span class="text-7xl md:text-8xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-neutral-700 to-neutral-900 tracking-tighter heading-font uppercase stroke-text hover:from-white hover:to-neutral-400 transition-all">PHP</span>
+        <span class="text-7xl md:text-8xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-neutral-800 to-neutral-950 tracking-tighter heading-font uppercase stroke-text hover:from-emerald-400 hover:to-emerald-900 transition-all">Java</span>
+        <span class="text-7xl md:text-8xl font-medium text-transparent bg-clip-text bg-gradient-to-b from-neutral-700 to-neutral-900 tracking-tighter heading-font uppercase stroke-text hover:from-rose-400 hover:to-rose-900 transition-all">CSS</span>
+      </div>
     </div>
-
-
 
     <!-- Services Grid -->
     <section id="about" class="py-32 px-6 md:px-12 bg-[#030303] relative">
-        <div class="max-w-7xl mx-auto">
-            <div class="flex flex-col md:flex-row justify-between mb-20 items-end">
-                <h2 class="text-4xl md:text-5xl font-medium heading-font tracking-tight text-white glow-text">
-                    Core Skills
-                </h2>
-                <div class="flex items-center gap-4">
-                    <div class="h-px w-12 bg-neutral-800"></div>
-                    <p class="text-sm font-mono text-neutral-500 uppercase mt-4 md:mt-0">
-                        [ 01 - 06 ]
-                    </p>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-3 border-l border-neutral-800/50">
-                <!-- Service 1 -->
-                <div
-                    class="grid-cell p-12 border-r border-b border-neutral-800/50 hover:bg-neutral-900/20 transition-colors group hover-trigger cursor-none relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    </div>
-                    <div class="mb-24 flex justify-between relative z-10">
-                        <div
-                            class="p-3 rounded-lg bg-neutral-900/50 border border-neutral-800 group-hover:border-indigo-500/50 group-hover:text-indigo-400 transition-all duration-300">
-                            <svg class="w-6 h-6 text-neutral-400 group-hover:text-indigo-400" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="1.5">
-                                <rect x="3" y="3" width="18" height="18" rx="2"></rect>
-                                <path d="M3 9h18"></path>
-                                <path d="M9 21V9"></path>
-                            </svg>
-                        </div>
-                        <span class="text-xs font-mono text-neutral-600 group-hover:text-indigo-400">01</span>
-                    </div>
-                    <h3
-                        class="text-2xl font-medium text-white mb-4 heading-font group-hover:translate-x-2 transition-transform duration-300">
-                        Frontend Dev</h3>
-                    <p class="text-sm text-neutral-500 leading-relaxed max-w-xs group-hover:text-neutral-400">
-                        Building dynamic, responsive interfaces with JavaScript, TypeScript, and React.
-                    </p>
-                </div>
-
-                <!-- Service 2 -->
-                <div
-                    class="grid-cell p-12 border-r border-b border-neutral-800/50 hover:bg-neutral-900/20 transition-colors group hover-trigger cursor-none relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    </div>
-                    <div class="mb-24 flex justify-between relative z-10">
-                        <div
-                            class="p-3 rounded-lg bg-neutral-900/50 border border-neutral-800 group-hover:border-cyan-500/50 group-hover:text-cyan-400 transition-all duration-300">
-                            <svg class="w-6 h-6 text-neutral-400 group-hover:text-cyan-400" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path>
-                                <line x1="4" x2="4" y1="22" y2="15"></line>
-                            </svg>
-                        </div>
-                        <span class="text-xs font-mono text-neutral-600 group-hover:text-cyan-400">02</span>
-                    </div>
-                    <h3
-                        class="text-2xl font-medium text-white mb-4 heading-font group-hover:translate-x-2 transition-transform duration-300">
-                        Backend Dev</h3>
-                    <p class="text-sm text-neutral-500 leading-relaxed max-w-xs group-hover:text-neutral-400">
-                        PHP, Java & Node.js backend logic — authentication, data management, and API integrations.
-                    </p>
-                </div>
-
-                <!-- Service 3 -->
-                <div
-                    class="grid-cell p-12 border-r border-b border-neutral-800/50 hover:bg-neutral-900/20 transition-colors group hover-trigger cursor-none relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    </div>
-                    <div class="mb-24 flex justify-between relative z-10">
-                        <div
-                            class="p-3 rounded-lg bg-neutral-900/50 border border-neutral-800 group-hover:border-emerald-500/50 group-hover:text-emerald-400 transition-all duration-300">
-                            <svg class="w-6 h-6 text-neutral-400 group-hover:text-emerald-400" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="1.5">
-                                <circle cx="12" cy="12" r="3"></circle>
-                                <path d="M12 1v4"></path>
-                                <path d="M12 19v4"></path>
-                                <path d="m4.93 4.93 2.83 2.83"></path>
-                                <path d="m16.24 16.24 2.83 2.83"></path>
-                                <path d="M1 12h4"></path>
-                                <path d="M19 12h4"></path>
-                                <path d="m4.93 19.07 2.83-2.83"></path>
-                                <path d="m16.24 7.76 2.83-2.83"></path>
-                            </svg>
-                        </div>
-                        <span class="text-xs font-mono text-neutral-600 group-hover:text-emerald-400">03</span>
-                    </div>
-                    <h3
-                        class="text-2xl font-medium text-white mb-4 heading-font group-hover:translate-x-2 transition-transform duration-300">
-                        Full-Stack Apps</h3>
-                    <p class="text-sm text-neutral-500 leading-relaxed max-w-xs group-hover:text-neutral-400">
-                        End-to-end web solutions from concept to deployment — rapid prototyping to polished product.
-                    </p>
-                </div>
-
-                <!-- Service 4 -->
-                <div
-                    class="grid-cell p-12 border-r border-b border-neutral-800/50 hover:bg-neutral-900/20 transition-colors group hover-trigger cursor-none relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    </div>
-                    <div class="mb-24 flex justify-between relative z-10">
-                        <div
-                            class="p-3 rounded-lg bg-neutral-900/50 border border-neutral-800 group-hover:border-rose-500/50 group-hover:text-rose-400 transition-all duration-300">
-                            <svg class="w-6 h-6 text-neutral-400 group-hover:text-rose-400" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"></path>
-                            </svg>
-                        </div>
-                        <span class="text-xs font-mono text-neutral-600 group-hover:text-rose-400">04</span>
-                    </div>
-                    <h3
-                        class="text-2xl font-medium text-white mb-4 heading-font group-hover:translate-x-2 transition-transform duration-300">
-                        Database & Data</h3>
-                    <p class="text-sm text-neutral-500 leading-relaxed max-w-xs group-hover:text-neutral-400">
-                        MySQL and MongoDB for robust, scalable data layers with clear data models.
-                    </p>
-                </div>
-
-                <!-- Service 5 -->
-                <div
-                    class="grid-cell p-12 border-r border-b border-neutral-800/50 hover:bg-neutral-900/20 transition-colors group hover-trigger cursor-none relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    </div>
-                    <div class="mb-24 flex justify-between relative z-10">
-                        <div
-                            class="p-3 rounded-lg bg-neutral-900/50 border border-neutral-800 group-hover:border-purple-500/50 group-hover:text-purple-400 transition-all duration-300">
-                            <svg class="w-6 h-6 text-neutral-400 group-hover:text-purple-400" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path
-                                    d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z">
-                                </path>
-                            </svg>
-                        </div>
-                        <span class="text-xs font-mono text-neutral-600 group-hover:text-purple-400">05</span>
-                    </div>
-                    <h3
-                        class="text-2xl font-medium text-white mb-4 heading-font group-hover:translate-x-2 transition-transform duration-300">
-                        UI/UX Design</h3>
-                    <p class="text-sm text-neutral-500 leading-relaxed max-w-xs group-hover:text-neutral-400">
-                        Modern CSS, responsive layouts, and polished user experiences across all devices.
-                    </p>
-                </div>
-
-                <!-- Service 6 -->
-                <div
-                    class="grid-cell p-12 border-r border-b border-neutral-800/50 hover:bg-neutral-900/20 transition-colors group hover-trigger cursor-none relative overflow-hidden">
-                    <div
-                        class="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500">
-                    </div>
-                    <div class="mb-24 flex justify-between relative z-10">
-                        <div
-                            class="p-3 rounded-lg bg-neutral-900/50 border border-neutral-800 group-hover:border-orange-500/50 group-hover:text-orange-400 transition-all duration-300">
-                            <svg class="w-6 h-6 text-neutral-400 group-hover:text-orange-400" viewBox="0 0 24 24"
-                                fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="m18 16 4-4-4-4"></path>
-                                <path d="m6 8-4 4 4 4"></path>
-                                <path d="m14.5 4-5 16"></path>
-                            </svg>
-                        </div>
-                        <span class="text-xs font-mono text-neutral-600 group-hover:text-orange-400">06</span>
-                    </div>
-                    <h3
-                        class="text-2xl font-medium text-white mb-4 heading-font group-hover:translate-x-2 transition-transform duration-300">
-                        RESTful APIs</h3>
-                    <p class="text-sm text-neutral-500 leading-relaxed max-w-xs group-hover:text-neutral-400">
-                        Robust REST APIs with authentication, security best practices, and clear documentation.
-                    </p>
-                </div>
-            </div>
+      <div class="max-w-7xl mx-auto">
+        <div class="flex flex-col md:flex-row justify-between mb-20 items-end">
+          <h2 class="text-4xl md:text-5xl font-medium heading-font tracking-tight text-white glow-text">Core Skills</h2>
+          <div class="flex items-center gap-4">
+            <div class="h-px w-12 bg-neutral-800"></div>
+            <p class="text-sm font-mono text-neutral-500 uppercase mt-4 md:mt-0">[ 01 - 06 ]</p>
+          </div>
         </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 border-l border-neutral-800/50">
+          <!-- Frontend Dev -->
+          <div class="grid-cell p-12 border-r border-b border-neutral-800/50 hover:bg-neutral-900/20 transition-colors group hover-trigger cursor-none relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-indigo-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div class="mb-24 flex justify-between relative z-10">
+              <div class="p-3 rounded-lg bg-neutral-900/50 border border-neutral-800 group-hover:border-indigo-500/50 group-hover:text-indigo-400 transition-all duration-300">
+                <svg class="w-6 h-6 text-neutral-400 group-hover:text-indigo-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="2" /><path d="M3 9h18" /><path d="M9 21V9" /></svg>
+              </div>
+              <span class="text-xs font-mono text-neutral-600 group-hover:text-indigo-400">01</span>
+            </div>
+            <h3 class="text-2xl font-medium text-white mb-4 heading-font group-hover:translate-x-2 transition-transform duration-300">Frontend Dev</h3>
+            <p class="text-sm text-neutral-500 leading-relaxed max-w-xs group-hover:text-neutral-400">Building dynamic, responsive interfaces with JavaScript, TypeScript, and React.</p>
+          </div>
+          <!-- Backend Dev -->
+          <div class="grid-cell p-12 border-r border-b border-neutral-800/50 hover:bg-neutral-900/20 transition-colors group hover-trigger cursor-none relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-cyan-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div class="mb-24 flex justify-between relative z-10">
+              <div class="p-3 rounded-lg bg-neutral-900/50 border border-neutral-800 group-hover:border-cyan-500/50 group-hover:text-cyan-400 transition-all duration-300">
+                <svg class="w-6 h-6 text-neutral-400 group-hover:text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z" /><line x1="4" x2="4" y1="22" y2="15" /></svg>
+              </div>
+              <span class="text-xs font-mono text-neutral-600 group-hover:text-cyan-400">02</span>
+            </div>
+            <h3 class="text-2xl font-medium text-white mb-4 heading-font group-hover:translate-x-2 transition-transform duration-300">Backend Dev</h3>
+            <p class="text-sm text-neutral-500 leading-relaxed max-w-xs group-hover:text-neutral-400">PHP, Java &amp; Node.js backend logic — authentication, data management, and API integrations.</p>
+          </div>
+          <!-- Full-Stack Apps -->
+          <div class="grid-cell p-12 border-r border-b border-neutral-800/50 hover:bg-neutral-900/20 transition-colors group hover-trigger cursor-none relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div class="mb-24 flex justify-between relative z-10">
+              <div class="p-3 rounded-lg bg-neutral-900/50 border border-neutral-800 group-hover:border-emerald-500/50 group-hover:text-emerald-400 transition-all duration-300">
+                <svg class="w-6 h-6 text-neutral-400 group-hover:text-emerald-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="3" /><path d="M12 1v4" /><path d="M12 19v4" /><path d="m4.93 4.93 2.83 2.83" /><path d="m16.24 16.24 2.83 2.83" /><path d="M1 12h4" /><path d="M19 12h4" /><path d="m4.93 19.07 2.83-2.83" /><path d="m16.24 7.76 2.83-2.83" /></svg>
+              </div>
+              <span class="text-xs font-mono text-neutral-600 group-hover:text-emerald-400">03</span>
+            </div>
+            <h3 class="text-2xl font-medium text-white mb-4 heading-font group-hover:translate-x-2 transition-transform duration-300">Full-Stack Apps</h3>
+            <p class="text-sm text-neutral-500 leading-relaxed max-w-xs group-hover:text-neutral-400">End-to-end web solutions from concept to deployment — rapid prototyping to polished product.</p>
+          </div>
+          <!-- Database & Data -->
+          <div class="grid-cell p-12 border-r border-b border-neutral-800/50 hover:bg-neutral-900/20 transition-colors group hover-trigger cursor-none relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-rose-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div class="mb-24 flex justify-between relative z-10">
+              <div class="p-3 rounded-lg bg-neutral-900/50 border border-neutral-800 group-hover:border-rose-500/50 group-hover:text-rose-400 transition-all duration-300">
+                <svg class="w-6 h-6 text-neutral-400 group-hover:text-rose-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z" /></svg>
+              </div>
+              <span class="text-xs font-mono text-neutral-600 group-hover:text-rose-400">04</span>
+            </div>
+            <h3 class="text-2xl font-medium text-white mb-4 heading-font group-hover:translate-x-2 transition-transform duration-300">Database &amp; Data</h3>
+            <p class="text-sm text-neutral-500 leading-relaxed max-w-xs group-hover:text-neutral-400">MySQL and MongoDB for robust, scalable data layers with clear data models.</p>
+          </div>
+          <!-- UI/UX Design -->
+          <div class="grid-cell p-12 border-r border-b border-neutral-800/50 hover:bg-neutral-900/20 transition-colors group hover-trigger cursor-none relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-purple-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div class="mb-24 flex justify-between relative z-10">
+              <div class="p-3 rounded-lg bg-neutral-900/50 border border-neutral-800 group-hover:border-purple-500/50 group-hover:text-purple-400 transition-all duration-300">
+                <svg class="w-6 h-6 text-neutral-400 group-hover:text-purple-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /></svg>
+              </div>
+              <span class="text-xs font-mono text-neutral-600 group-hover:text-purple-400">05</span>
+            </div>
+            <h3 class="text-2xl font-medium text-white mb-4 heading-font group-hover:translate-x-2 transition-transform duration-300">UI/UX Design</h3>
+            <p class="text-sm text-neutral-500 leading-relaxed max-w-xs group-hover:text-neutral-400">Modern CSS, responsive layouts, and polished user experiences across all devices.</p>
+          </div>
+          <!-- RESTful APIs -->
+          <div class="grid-cell p-12 border-r border-b border-neutral-800/50 hover:bg-neutral-900/20 transition-colors group hover-trigger cursor-none relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-br from-orange-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+            <div class="mb-24 flex justify-between relative z-10">
+              <div class="p-3 rounded-lg bg-neutral-900/50 border border-neutral-800 group-hover:border-orange-500/50 group-hover:text-orange-400 transition-all duration-300">
+                <svg class="w-6 h-6 text-neutral-400 group-hover:text-orange-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="m18 16 4-4-4-4" /><path d="m6 8-4 4 4 4" /><path d="m14.5 4-5 16" /></svg>
+              </div>
+              <span class="text-xs font-mono text-neutral-600 group-hover:text-orange-400">06</span>
+            </div>
+            <h3 class="text-2xl font-medium text-white mb-4 heading-font group-hover:translate-x-2 transition-transform duration-300">RESTful APIs</h3>
+            <p class="text-sm text-neutral-500 leading-relaxed max-w-xs group-hover:text-neutral-400">Robust REST APIs with authentication, security best practices, and clear documentation.</p>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- Capabilities Bento Grid -->
     <section class="py-24 px-6 md:px-12 bg-[#030303] relative overflow-hidden">
-        <div
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-indigo-900/5 blur-[120px] pointer-events-none">
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full bg-indigo-900/5 blur-[120px] pointer-events-none"></div>
+      <div class="max-w-7xl mx-auto relative z-10">
+        <div class="mb-16">
+          <h2 class="text-3xl font-medium heading-font tracking-tight text-white mb-2">System Capabilities</h2>
+          <p class="text-sm text-neutral-500">Built for real-world solutions.</p>
         </div>
-
-        <div class="max-w-7xl mx-auto relative z-10">
-            <div class="mb-16">
-                <h2 class="text-3xl font-medium heading-font tracking-tight text-white mb-2">
-                    System Capabilities
-                </h2>
-                <p class="text-sm text-neutral-500">Built for real-world solutions.</p>
+        <div class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-6 h-auto md:h-[600px]">
+          <div class="md:col-span-2 md:row-span-2 rounded-3xl glass-card p-10 relative overflow-hidden group hover:border-white/20 transition-all duration-500">
+            <div class="absolute top-0 right-0 p-40 bg-indigo-600/20 blur-[100px] rounded-full pointer-events-none group-hover:bg-indigo-500/30 transition-all duration-500"></div>
+            <div class="flex flex-col h-full justify-between relative z-10">
+              <div class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/10 border border-white/10 flex items-center justify-center mb-6 shadow-lg shadow-indigo-900/20">
+                <svg class="w-7 h-7 text-indigo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                </svg>
+              </div>
+              <div>
+                <h3 class="text-2xl text-white heading-font mb-3">Full-Stack Architecture</h3>
+                <p class="text-sm text-neutral-400 leading-relaxed max-w-md">Modular, scalable app design with React frontends and Node.js/PHP backends. Building complete web solutions from database to UI with clean architecture and maintainable code.</p>
+              </div>
             </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-4 grid-rows-2 gap-6 h-auto md:h-[600px]">
-
-                <!-- Card Large -->
-                <div
-                    class="md:col-span-2 md:row-span-2 rounded-3xl glass-card p-10 relative overflow-hidden group hover:border-white/20 transition-all duration-500">
-                    <div
-                        class="absolute top-0 right-0 p-40 bg-indigo-600/20 blur-[100px] rounded-full pointer-events-none group-hover:bg-indigo-500/30 transition-all duration-500">
-                    </div>
-                    <div class="flex flex-col h-full justify-between relative z-10">
-                        <div
-                            class="w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500/20 to-purple-500/10 border border-white/10 flex items-center justify-center mb-6 shadow-lg shadow-indigo-900/20">
-                            <svg class="w-7 h-7 text-indigo-300" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.5">
-                                <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
-                            </svg>
-                        </div>
-                        <div>
-                            <h3 class="text-2xl text-white heading-font mb-3">Full-Stack Architecture</h3>
-                            <p class="text-sm text-neutral-400 leading-relaxed max-w-md">Modular, scalable app
-                                design with React frontends and Node.js/PHP backends. Building complete web solutions
-                                from database to UI with clean architecture and maintainable code.</p>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Card Medium Top -->
-                <div
-                    class="md:col-span-2 rounded-3xl glass-card p-10 relative overflow-hidden group hover:border-white/20 transition-all duration-500 flex flex-col justify-between">
-                    <div
-                        class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.05),transparent)]">
-                    </div>
-                    <div class="flex justify-between items-start">
-                        <h3 class="text-xl text-white heading-font">Responsive Design</h3>
-                        <div class="p-2 rounded-lg bg-neutral-900/50 border border-white/5">
-                            <svg class="w-5 h-5 text-neutral-400 group-hover:text-emerald-400 transition-colors"
-                                viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                                <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"></path>
-                                <path d="M3 3v5h5"></path>
-                                <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"></path>
-                                <path d="M16 21h5v-5"></path>
-                            </svg>
-                        </div>
-                    </div>
-                    <p class="text-sm text-neutral-400 mt-4 group-hover:text-neutral-300 transition-colors">Cross-device
-                        responsive interfaces built with modern CSS, ensuring <span
-                            class="text-emerald-400">pixel-perfect</span> layouts on every screen size.</p>
-                </div>
-
-                <!-- Card Small Bottom Left -->
-                <div
-                    class="md:col-span-1 rounded-3xl glass-card p-8 relative overflow-hidden group hover:border-white/20 transition-all duration-500">
-                    <div
-                        class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-rose-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                    </div>
-                    <div class="w-full h-full flex flex-col justify-between relative z-10">
-                        <svg class="w-8 h-8 text-neutral-500 group-hover:text-rose-400 transition-colors"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
-                        </svg>
-                        <h3 class="text-lg text-white heading-font">Auth & Security</h3>
-                    </div>
-                </div>
-
-                <!-- Card Small Bottom Right -->
-                <div
-                    class="md:col-span-1 rounded-3xl glass-card p-8 relative overflow-hidden group hover:border-white/20 transition-all duration-500">
-                    <div
-                        class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity">
-                    </div>
-                    <div class="w-full h-full flex flex-col justify-between relative z-10">
-                        <svg class="w-8 h-8 text-neutral-500 group-hover:text-cyan-400 transition-colors"
-                            viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                            <circle cx="12" cy="12" r="10"></circle>
-                            <path d="M2 12h20"></path>
-                            <path
-                                d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
-                            </path>
-                        </svg>
-                        <h3 class="text-lg text-white heading-font">Version Control</h3>
-                    </div>
-                </div>
+          </div>
+          <div class="md:col-span-2 rounded-3xl glass-card p-10 relative overflow-hidden group hover:border-white/20 transition-all duration-500 flex flex-col justify-between">
+            <div class="absolute inset-0 bg-[radial-gradient(circle_at_top_right,_rgba(255,255,255,0.05),transparent)]"></div>
+            <div class="flex justify-between items-start">
+              <h3 class="text-xl text-white heading-font">Responsive Design</h3>
+              <div class="p-2 rounded-lg bg-neutral-900/50 border border-white/5">
+                <svg class="w-5 h-5 text-neutral-400 group-hover:text-emerald-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" /><path d="M16 21h5v-5" />
+                </svg>
+              </div>
             </div>
+            <p class="text-sm text-neutral-400 mt-4 group-hover:text-neutral-300 transition-colors">Cross-device responsive interfaces built with modern CSS, ensuring <span class="text-emerald-400">pixel-perfect</span> layouts on every screen size.</p>
+          </div>
+          <div class="md:col-span-1 rounded-3xl glass-card p-8 relative overflow-hidden group hover:border-white/20 transition-all duration-500 bento-sm" id="auth-card">
+            <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-rose-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity hover-glow"></div>
+            <div class="w-full h-full flex flex-col justify-between relative z-10">
+              <svg class="w-8 h-8 text-neutral-500 group-hover:text-rose-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+              </svg>
+              <h3 class="text-lg text-white heading-font">Auth &amp; Security</h3>
+            </div>
+          </div>
+          <div class="md:col-span-1 rounded-3xl glass-card p-8 relative overflow-hidden group hover:border-white/20 transition-all duration-500 bento-sm" id="vc-card">
+            <div class="absolute bottom-0 left-0 w-full h-1/2 bg-gradient-to-t from-cyan-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity hover-glow"></div>
+            <div class="w-full h-full flex flex-col justify-between relative z-10">
+              <svg class="w-8 h-8 text-neutral-500 group-hover:text-cyan-400 transition-colors" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                <circle cx="12" cy="12" r="10" /><path d="M2 12h20" /><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+              </svg>
+              <h3 class="text-lg text-white heading-font">Version Control</h3>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Manifesto -->
     <section class="py-40 px-6 bg-[#030303] flex items-center justify-center border-t border-b border-neutral-900/50">
-        <div class="max-w-4xl mx-auto text-center">
-            <p id="manifesto"
-                class="text-4xl md:text-6xl font-medium leading-[1.15] tracking-tight heading-font text-neutral-300">
-                I don't just write code. I build complete web solutions — from intuitive frontends to robust backends.
-                Every project is an opportunity to solve real problems and deliver experiences users actually enjoy.
-            </p>
-        </div>
+      <div class="max-w-4xl mx-auto text-center">
+        <p id="manifesto" class="text-4xl md:text-6xl font-medium leading-[1.15] tracking-tight heading-font text-neutral-300">
+          I don't just write code. I build complete web solutions — from intuitive frontends to robust backends. Every project is an opportunity to solve real problems and deliver experiences users actually enjoy.
+        </p>
+      </div>
     </section>
 
     <!-- Horizontal Scroll Process -->
-    <section id="process"
-        class="process-wrapper overflow-hidden bg-[#030303] h-screen relative border-b border-neutral-900/50">
-        <div class="process-container flex h-full w-[400vw]">
-            <!-- Panel 1 -->
-            <div
-                class="w-screen h-full grid grid-cols-1 lg:grid-cols-2 border-r border-neutral-800/50 relative bg-[#030303]">
-                <div class="flex flex-col justify-center px-12 md:px-24 relative z-10 pointer-events-none">
-                    <div class="absolute top-12 left-12 text-xs font-mono text-indigo-500 mb-2">PHASE_01</div>
-                    <h3
-                        class="text-6xl md:text-8xl font-semibold text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-600 mb-8 heading-font">
-                        Discovery</h3>
-                    <p class="text-xl md:text-2xl text-neutral-400 max-w-xl font-light leading-relaxed">
-                        Deep dive into business logic. Understanding goals, target audience, and defining technical
-                        constraints.
-                    </p>
-                </div>
-                <div
-                    class="hidden lg:flex items-center justify-center relative border-l border-neutral-800/50 overflow-hidden bg-neutral-900/20">
-                    <div class="relative p-12 border border-neutral-800/50 rounded-2xl bg-black/40 shadow-2xl">
-                        <div class="grid grid-cols-4 gap-6 opacity-40">
-                            <div class="w-3 h-3 bg-neutral-600 rounded-full"></div>
-                            <div class="w-3 h-3 bg-neutral-600 rounded-full"></div>
-                            <div class="w-3 h-3 bg-neutral-600 rounded-full"></div>
-                            <div class="w-3 h-3 bg-neutral-600 rounded-full"></div>
-                            <div class="w-3 h-3 bg-neutral-600 rounded-full"></div>
-                            <div class="w-3 h-3 bg-neutral-600 rounded-full"></div>
-                            <div class="w-3 h-3 bg-neutral-600 rounded-full"></div>
-                            <div class="w-3 h-3 bg-neutral-600 rounded-full"></div>
-                        </div>
-                        <div
-                            class="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-500/20 to-transparent animate-scan border-b border-emerald-500/50">
-                        </div>
-                    </div>
-                </div>
+    <section id="process" class="process-wrapper overflow-hidden bg-[#030303] h-screen relative border-b border-neutral-900/50">
+      <div class="process-container flex h-full w-[400vw]">
+        <div class="w-screen h-full grid grid-cols-1 lg:grid-cols-2 border-r border-neutral-800/50 relative bg-[#030303]">
+          <div class="flex flex-col justify-center px-12 md:px-24 relative z-10 pointer-events-none">
+            <div class="absolute top-12 left-12 text-xs font-mono text-indigo-500 mb-2">PHASE_01</div>
+            <h3 class="text-6xl md:text-8xl font-semibold text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-600 mb-8 heading-font">Discovery</h3>
+            <p class="text-xl md:text-2xl text-neutral-400 max-w-xl font-light leading-relaxed">Deep dive into business logic. Understanding goals, target audience, and defining technical constraints.</p>
+          </div>
+          <div class="hidden lg:flex items-center justify-center relative border-l border-neutral-800/50 overflow-hidden bg-neutral-900/20">
+            <div class="relative p-12 border border-neutral-800/50 rounded-2xl bg-black/40 shadow-2xl">
+              <div class="grid grid-cols-4 gap-6 opacity-40">
+                <div class="w-3 h-3 bg-neutral-600 rounded-full"></div>
+                <div class="w-3 h-3 bg-neutral-600 rounded-full"></div>
+                <div class="w-3 h-3 bg-neutral-600 rounded-full"></div>
+                <div class="w-3 h-3 bg-neutral-600 rounded-full"></div>
+                <div class="w-3 h-3 bg-neutral-600 rounded-full"></div>
+                <div class="w-3 h-3 bg-neutral-600 rounded-full"></div>
+                <div class="w-3 h-3 bg-neutral-600 rounded-full"></div>
+                <div class="w-3 h-3 bg-neutral-600 rounded-full"></div>
+              </div>
+              <div class="absolute inset-0 bg-gradient-to-b from-transparent via-emerald-500/20 to-transparent animate-scan border-b border-emerald-500/50"></div>
             </div>
-
-            <!-- Panel 2 -->
-            <div
-                class="w-screen h-full grid grid-cols-1 lg:grid-cols-2 border-r border-neutral-800/50 relative bg-[#030303]">
-                <div class="flex flex-col justify-center px-12 md:px-24 relative z-10 pointer-events-none">
-                    <div class="absolute top-12 left-12 text-xs font-mono text-cyan-500 mb-2">PHASE_02</div>
-                    <h3
-                        class="text-6xl md:text-8xl font-semibold text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-600 mb-8 heading-font">
-                        Architecture</h3>
-                    <p class="text-xl md:text-2xl text-neutral-400 max-w-xl font-light leading-relaxed">
-                        Blueprinting the system. Designing scalable schemas, API contracts, and choosing the right
-                        stack.
-                    </p>
-                </div>
-                <div
-                    class="hidden lg:flex items-center justify-center relative border-l border-neutral-800/50 overflow-hidden bg-neutral-900/20">
-                    <div class="relative w-96 h-96 flex items-center justify-center">
-                        <div
-                            class="absolute inset-0 border border-neutral-800 rounded-full animate-[spin_20s_linear_infinite]">
-                        </div>
-                        <div
-                            class="absolute inset-12 border border-dashed border-neutral-700 rounded-full animate-[spin_15s_linear_infinite_reverse]">
-                        </div>
-                        <div
-                            class="w-24 h-24 bg-neutral-900 border border-cyan-500/30 rounded-xl flex items-center justify-center z-10 shadow-[0_0_30px_rgba(6,182,212,0.2)]">
-                            <svg class="w-8 h-8 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                stroke-width="1.5">
-                                <rect x="2" y="2" width="20" height="8" rx="2" ry="2"></rect>
-                                <rect x="2" y="14" width="20" height="8" rx="2" ry="2"></rect>
-                                <line x1="6" y1="6" x2="6.01" y2="6"></line>
-                                <line x1="6" y1="18" x2="6.01" y2="18"></line>
-                            </svg>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Panel 3 -->
-            <div
-                class="w-screen h-full grid grid-cols-1 lg:grid-cols-2 border-r border-neutral-800/50 relative bg-[#030303]">
-                <div class="flex flex-col justify-center px-12 md:px-24 relative z-10 pointer-events-none">
-                    <div class="absolute top-12 left-12 text-xs font-mono text-purple-500 mb-2">PHASE_03</div>
-                    <h3
-                        class="text-6xl md:text-8xl font-semibold text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-600 mb-8 heading-font">
-                        Development</h3>
-                    <p class="text-xl md:text-2xl text-neutral-400 max-w-xl font-light leading-relaxed">
-                        Rigorous coding sprints. Continuous integration, automated testing, and pixel-perfect
-                        implementation.
-                    </p>
-                </div>
-                <div
-                    class="hidden lg:flex items-center justify-center relative border-l border-neutral-800/50 overflow-hidden bg-neutral-900/20">
-                    <div class="relative flex items-center gap-8">
-                        <div
-                            class="w-14 h-14 rounded-full border border-neutral-700 bg-neutral-900 flex items-center justify-center z-10">
-                            <div class="w-2 h-2 bg-neutral-500 rounded-full"></div>
-                        </div>
-                        <div class="w-32 h-[1px] bg-neutral-800 relative overflow-hidden">
-                            <div
-                                class="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500 to-transparent w-1/2 animate-data-flow">
-                            </div>
-                        </div>
-                        <div
-                            class="w-24 h-24 rounded-2xl border border-purple-500/30 bg-neutral-900 flex items-center justify-center relative shadow-[0_0_40px_-5px_rgba(168,85,247,0.3)] z-10">
-                            <svg class="w-10 h-10 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"
-                                stroke-width="1.5">
-                                <polyline points="16 18 22 12 16 6"></polyline>
-                                <polyline points="8 6 2 12 8 18"></polyline>
-                            </svg>
-                        </div>
-                        <div class="w-32 h-[1px] bg-neutral-800 relative overflow-hidden">
-                            <div class="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500 to-transparent w-1/2 animate-data-flow"
-                                style="animation-delay:.5s"></div>
-                        </div>
-                        <div
-                            class="w-14 h-14 rounded-full border border-neutral-700 bg-neutral-900 flex items-center justify-center z-10">
-                            <div class="w-2 h-2 bg-neutral-500 rounded-full"></div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Panel 4 -->
-            <div class="w-screen h-full flex items-center justify-center relative bg-white text-black">
-                <div class="text-center relative z-10">
-                    <h3 class="text-8xl md:text-[10rem] font-semibold tracking-tighter mb-10 heading-font">
-                        Ready?
-                    </h3>
-                    <a href="#contact"
-                        class="px-10 py-5 bg-black text-white rounded-full text-sm font-mono uppercase tracking-widest hover:scale-105 transition-transform hover-trigger inline-block hover:shadow-2xl hover:shadow-black/20">
-                        Initialize Project
-                    </a>
-                </div>
-                <!-- Abstract decorative bg for light section -->
-                <div
-                    class="absolute inset-0 opacity-5 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px]">
-                </div>
-            </div>
+          </div>
         </div>
+        <div class="w-screen h-full grid grid-cols-1 lg:grid-cols-2 border-r border-neutral-800/50 relative bg-[#030303]">
+          <div class="flex flex-col justify-center px-12 md:px-24 relative z-10 pointer-events-none">
+            <div class="absolute top-12 left-12 text-xs font-mono text-cyan-500 mb-2">PHASE_02</div>
+            <h3 class="text-6xl md:text-8xl font-semibold text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-600 mb-8 heading-font">Architecture</h3>
+            <p class="text-xl md:text-2xl text-neutral-400 max-w-xl font-light leading-relaxed">Blueprinting the system. Designing scalable schemas, API contracts, and choosing the right stack.</p>
+          </div>
+          <div class="hidden lg:flex items-center justify-center relative border-l border-neutral-800/50 overflow-hidden bg-neutral-900/20">
+            <div class="relative w-96 h-96 flex items-center justify-center">
+              <div class="absolute inset-0 border border-neutral-800 rounded-full" style="animation: spin 20s linear infinite"></div>
+              <div class="absolute inset-12 border border-dashed border-neutral-700 rounded-full" style="animation: spin 15s linear infinite reverse"></div>
+              <div class="w-24 h-24 bg-neutral-900 border border-cyan-500/30 rounded-xl flex items-center justify-center z-10 shadow-[0_0_30px_rgba(6,182,212,0.2)]">
+                <svg class="w-8 h-8 text-cyan-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                  <rect x="2" y="2" width="20" height="8" rx="2" ry="2" /><rect x="2" y="14" width="20" height="8" rx="2" ry="2" /><line x1="6" y1="6" x2="6.01" y2="6" /><line x1="6" y1="18" x2="6.01" y2="18" />
+                </svg>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="w-screen h-full grid grid-cols-1 lg:grid-cols-2 border-r border-neutral-800/50 relative bg-[#030303]">
+          <div class="flex flex-col justify-center px-12 md:px-24 relative z-10 pointer-events-none">
+            <div class="absolute top-12 left-12 text-xs font-mono text-purple-500 mb-2">PHASE_03</div>
+            <h3 class="text-6xl md:text-8xl font-semibold text-transparent bg-clip-text bg-gradient-to-b from-white to-neutral-600 mb-8 heading-font">Development</h3>
+            <p class="text-xl md:text-2xl text-neutral-400 max-w-xl font-light leading-relaxed">Rigorous coding sprints. Continuous integration, automated testing, and pixel-perfect implementation.</p>
+          </div>
+          <div class="hidden lg:flex items-center justify-center relative border-l border-neutral-800/50 overflow-hidden bg-neutral-900/20">
+            <div class="relative flex items-center gap-8">
+              <div class="w-14 h-14 rounded-full border border-neutral-700 bg-neutral-900 flex items-center justify-center z-10">
+                <div class="w-2 h-2 bg-neutral-500 rounded-full"></div>
+              </div>
+              <div class="w-32 h-[1px] bg-neutral-800 relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500 to-transparent w-1/2 animate-data-flow"></div>
+              </div>
+              <div class="w-24 h-24 rounded-2xl border border-purple-500/30 bg-neutral-900 flex items-center justify-center relative shadow-[0_0_40px_-5px_rgba(168,85,247,0.3)] z-10">
+                <svg class="w-10 h-10 text-purple-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <polyline points="16 18 22 12 16 6" /><polyline points="8 6 2 12 8 18" />
+                </svg>
+              </div>
+              <div class="w-32 h-[1px] bg-neutral-800 relative overflow-hidden">
+                <div class="absolute inset-0 bg-gradient-to-r from-transparent via-purple-500 to-transparent w-1/2 animate-data-flow" style="animation-delay: .5s"></div>
+              </div>
+              <div class="w-14 h-14 rounded-full border border-neutral-700 bg-neutral-900 flex items-center justify-center z-10">
+                <div class="w-2 h-2 bg-neutral-500 rounded-full"></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="w-screen h-full flex items-center justify-center relative bg-white text-black">
+          <div class="text-center relative z-10">
+            <h3 class="text-8xl md:text-[10rem] font-semibold tracking-tighter mb-10 heading-font">Ready?</h3>
+            <a href="#contact-section" class="px-10 py-5 bg-black text-white rounded-full text-sm font-mono uppercase tracking-widest hover:scale-105 transition-transform hover-trigger inline-block hover:shadow-2xl hover:shadow-black/20">Initialize Project</a>
+          </div>
+          <div class="absolute inset-0 opacity-5 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px]"></div>
+        </div>
+      </div>
     </section>
 
-    <!-- Selected Work (Sticky) -->
+    <!-- Selected Work -->
     <section id="work" class="py-32 px-6 md:px-12 bg-[#030303] border-t border-neutral-900/50">
-        <div class="max-w-7xl mx-auto mb-24">
-            <h2 class="text-4xl md:text-5xl font-medium heading-font tracking-tight text-white">
-                Selected Output
-            </h2>
+      <div class="max-w-7xl mx-auto mb-24">
+        <h2 class="text-4xl md:text-5xl font-medium heading-font tracking-tight text-white">Selected Output</h2>
+      </div>
+      <div class="max-w-5xl mx-auto relative space-y-40">
+        <!-- Budgetflow -->
+        <div class="sticky top-24 work-card group hover-trigger cursor-none">
+          <a href="https://github.com/Obsann/Budgetflow" target="_blank" rel="noreferrer">
+            <div class="bg-[#0a0a0a] border border-neutral-800 rounded-2xl overflow-hidden aspect-video relative shadow-2xl shadow-black">
+              <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=2940&auto=format&fit=crop" class="w-full h-full object-cover opacity-60 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700" alt="Budgetflow" />
+              <div class="absolute bottom-0 left-0 p-8 w-full bg-gradient-to-t from-black via-black/80 to-transparent">
+                <div class="flex justify-between items-end translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                  <div>
+                    <h3 class="text-3xl font-medium text-white mb-2 heading-font">Budgetflow</h3>
+                    <p class="text-sm text-neutral-400 mb-3 max-w-md">Personal finance app — track income &amp; expenses with interactive charts and budget reports.</p>
+                    <div class="flex gap-2 text-xs font-mono text-indigo-300">
+                      <span class="bg-indigo-900/30 border border-indigo-500/30 px-2 py-1 rounded">JAVASCRIPT</span>
+                      <span class="bg-indigo-900/30 border border-indigo-500/30 px-2 py-1 rounded">PHP</span>
+                      <span class="bg-indigo-900/30 border border-indigo-500/30 px-2 py-1 rounded">HTML/CSS</span>
+                    </div>
+                  </div>
+                  <div class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 scale-0 group-hover:scale-100">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M7 17L17 7" /><path d="M7 7h10v10" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
         </div>
-
-        <div class="max-w-5xl mx-auto relative space-y-40">
-            <!-- Card 1: Budgetflow -->
-            <div class="sticky top-24 work-card group hover-trigger cursor-none">
-                <a href="https://github.com/Obsann/Budgetflow" target="_blank">
-                    <div
-                        class="bg-[#0a0a0a] border border-neutral-800 rounded-2xl overflow-hidden aspect-video relative shadow-2xl shadow-black">
-                        <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?q=80&w=2940&auto=format&fit=crop"
-                            class="w-full h-full object-cover opacity-60 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700">
-                        <div
-                            class="absolute bottom-0 left-0 p-8 w-full bg-gradient-to-t from-black via-black/80 to-transparent">
-                            <div
-                                class="flex justify-between items-end translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                <div>
-                                    <h3 class="text-3xl font-medium text-white mb-2 heading-font">Budgetflow</h3>
-                                    <p class="text-sm text-neutral-400 mb-3 max-w-md">Personal finance app — track
-                                        income & expenses with interactive charts and budget reports.</p>
-                                    <div class="flex gap-2 text-xs font-mono text-indigo-300">
-                                        <span
-                                            class="bg-indigo-900/30 border border-indigo-500/30 px-2 py-1 rounded">JAVASCRIPT</span>
-                                        <span
-                                            class="bg-indigo-900/30 border border-indigo-500/30 px-2 py-1 rounded">PHP</span>
-                                        <span
-                                            class="bg-indigo-900/30 border border-indigo-500/30 px-2 py-1 rounded">HTML/CSS</span>
-                                    </div>
-                                </div>
-                                <div
-                                    class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 scale-0 group-hover:scale-100">
-                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="1.5">
-                                        <path d="M7 17L17 7"></path>
-                                        <path d="M7 7h10v10"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
+        <!-- Online Auction Platform -->
+        <div class="sticky top-32 work-card group hover-trigger cursor-none">
+          <a href="https://github.com/Obsann/Final-Online-Auction-Platform" target="_blank" rel="noreferrer">
+            <div class="bg-[#0a0a0a] border border-neutral-800 rounded-2xl overflow-hidden aspect-video relative shadow-2xl shadow-black">
+              <img src="https://images.unsplash.com/photo-1633158829585-23ba8f7c8caf?q=80&w=2940&auto=format&fit=crop" class="w-full h-full object-cover opacity-60 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700" alt="Auction Platform" />
+              <div class="absolute bottom-0 left-0 p-8 w-full bg-gradient-to-t from-black via-black/80 to-transparent">
+                <div class="flex justify-between items-end translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                  <div>
+                    <h3 class="text-3xl font-medium text-white mb-2 heading-font">Online Auction Platform</h3>
+                    <p class="text-sm text-neutral-400 mb-3 max-w-md">Full-featured auction site — create listings, place bids, and manage sales in real time.</p>
+                    <div class="flex gap-2 text-xs font-mono text-cyan-300">
+                      <span class="bg-cyan-900/30 border border-cyan-500/30 px-2 py-1 rounded">TYPESCRIPT</span>
+                      <span class="bg-cyan-900/30 border border-cyan-500/30 px-2 py-1 rounded">JAVASCRIPT</span>
+                      <span class="bg-cyan-900/30 border border-cyan-500/30 px-2 py-1 rounded">CSS</span>
                     </div>
-                </a>
+                  </div>
+                  <div class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 scale-0 group-hover:scale-100">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M7 17L17 7" /><path d="M7 7h10v10" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
             </div>
-
-            <!-- Card 2: Online Auction Platform -->
-            <div class="sticky top-32 work-card group hover-trigger cursor-none">
-                <a href="https://github.com/Obsann/Final-Online-Auction-Platform" target="_blank">
-                    <div
-                        class="bg-[#0a0a0a] border border-neutral-800 rounded-2xl overflow-hidden aspect-video relative shadow-2xl shadow-black">
-                        <img src="https://images.unsplash.com/photo-1633158829585-23ba8f7c8caf?q=80&w=2940&auto=format&fit=crop"
-                            class="w-full h-full object-cover opacity-60 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700">
-                        <div
-                            class="absolute bottom-0 left-0 p-8 w-full bg-gradient-to-t from-black via-black/80 to-transparent">
-                            <div
-                                class="flex justify-between items-end translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                <div>
-                                    <h3 class="text-3xl font-medium text-white mb-2 heading-font">Online Auction
-                                        Platform</h3>
-                                    <p class="text-sm text-neutral-400 mb-3 max-w-md">Full-featured auction site —
-                                        create listings, place bids, and manage sales in real time.</p>
-                                    <div class="flex gap-2 text-xs font-mono text-cyan-300">
-                                        <span
-                                            class="bg-cyan-900/30 border border-cyan-500/30 px-2 py-1 rounded">TYPESCRIPT</span>
-                                        <span
-                                            class="bg-cyan-900/30 border border-cyan-500/30 px-2 py-1 rounded">JAVASCRIPT</span>
-                                        <span
-                                            class="bg-cyan-900/30 border border-cyan-500/30 px-2 py-1 rounded">CSS</span>
-                                    </div>
-                                </div>
-                                <div
-                                    class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 scale-0 group-hover:scale-100">
-                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="1.5">
-                                        <path d="M7 17L17 7"></path>
-                                        <path d="M7 7h10v10"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
-
-            <!-- Card 3: RMS Kebele Management -->
-            <div class="sticky top-40 work-card group hover-trigger cursor-none">
-                <a href="https://github.com/Obsann/RMS-Kebele-Management-System" target="_blank">
-                    <div
-                        class="bg-[#0a0a0a] border border-neutral-800 rounded-2xl overflow-hidden aspect-video relative shadow-2xl shadow-black">
-                        <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2940&auto=format&fit=crop"
-                            class="w-full h-full object-cover opacity-60 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700">
-                        <div
-                            class="absolute bottom-0 left-0 p-8 w-full bg-gradient-to-t from-black via-black/80 to-transparent">
-                            <div
-                                class="flex justify-between items-end translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
-                                <div>
-                                    <h3 class="text-3xl font-medium text-white mb-2 heading-font">RMS Kebele Management
-                                    </h3>
-                                    <p class="text-sm text-neutral-400 mb-3 max-w-md">Resource management system for
-                                        local admin units — registering, updating, and tracking resources.</p>
-                                    <div class="flex gap-2 text-xs font-mono text-purple-300">
-                                        <span
-                                            class="bg-purple-900/30 border border-purple-500/30 px-2 py-1 rounded">TYPESCRIPT</span>
-                                        <span
-                                            class="bg-purple-900/30 border border-purple-500/30 px-2 py-1 rounded">JAVASCRIPT</span>
-                                        <span
-                                            class="bg-purple-900/30 border border-purple-500/30 px-2 py-1 rounded">CSS</span>
-                                    </div>
-                                </div>
-                                <div
-                                    class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 scale-0 group-hover:scale-100">
-                                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="1.5">
-                                        <path d="M7 17L17 7"></path>
-                                        <path d="M7 7h10v10"></path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-            </div>
+          </a>
         </div>
+        <!-- RMS Kebele Management -->
+        <div class="sticky top-40 work-card group hover-trigger cursor-none">
+          <a href="https://github.com/Obsann/RMS-Kebele-Management-System" target="_blank" rel="noreferrer">
+            <div class="bg-[#0a0a0a] border border-neutral-800 rounded-2xl overflow-hidden aspect-video relative shadow-2xl shadow-black">
+              <img src="https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=2940&auto=format&fit=crop" class="w-full h-full object-cover opacity-60 group-hover:opacity-90 group-hover:scale-105 transition-all duration-700" alt="RMS Kebele" />
+              <div class="absolute bottom-0 left-0 p-8 w-full bg-gradient-to-t from-black via-black/80 to-transparent">
+                <div class="flex justify-between items-end translate-y-4 group-hover:translate-y-0 transition-transform duration-500">
+                  <div>
+                    <h3 class="text-3xl font-medium text-white mb-2 heading-font">RMS Kebele Management</h3>
+                    <p class="text-sm text-neutral-400 mb-3 max-w-md">Resource management system for local admin units — registering, updating, and tracking resources.</p>
+                    <div class="flex gap-2 text-xs font-mono text-purple-300">
+                      <span class="bg-purple-900/30 border border-purple-500/30 px-2 py-1 rounded">TYPESCRIPT</span>
+                      <span class="bg-purple-900/30 border border-purple-500/30 px-2 py-1 rounded">JAVASCRIPT</span>
+                      <span class="bg-purple-900/30 border border-purple-500/30 px-2 py-1 rounded">CSS</span>
+                    </div>
+                  </div>
+                  <div class="w-12 h-12 rounded-full bg-white text-black flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 scale-0 group-hover:scale-100">
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                      <path d="M7 17L17 7" /><path d="M7 7h10v10" />
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </a>
+        </div>
+      </div>
     </section>
 
     <!-- Interactive Terminal -->
     <section class="py-32 px-6 md:px-12 bg-[#030303] flex justify-center">
-        <div class="max-w-4xl w-full">
-            <div
-                class="rounded-xl border border-neutral-800 bg-[#0a0a0a] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
-                <!-- Terminal Header -->
-                <div class="flex items-center gap-2 px-4 py-3 border-b border-neutral-800 bg-[#0f0f0f]">
-                    <div class="flex gap-2">
-                        <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
-                        <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
-                        <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
-                    </div>
-                    <span class="ml-4 text-xs font-mono text-neutral-500 flex-1 text-center">obsann-dev — -zsh</span>
-                </div>
-                <!-- Terminal Body -->
-                <div class="p-8 font-mono text-xs md:text-sm text-neutral-300 leading-relaxed min-h-[340px]">
-                    <div class="mb-4">
-                        <span class="text-emerald-500">➜</span> <span class="text-indigo-400">~</span> <span
-                            class="text-neutral-400">./deploy_portfolio.sh --production</span>
-                    </div>
-                    <div class="mb-2">
-                        <span class="text-neutral-600">[14:20:01]</span> <span class="text-white">Initializing core
-                            modules...</span>
-                    </div>
-                    <div class="mb-2 pl-4 border-l border-neutral-800">
-                        <span class="text-neutral-500">Loading:</span> <span class="text-yellow-500">JavaScript
-                            ES2024</span><br>
-                        <span class="text-neutral-500">Loading:</span> <span class="text-yellow-500">TypeScript
-                            v5.3</span><br>
-                        <span class="text-neutral-500">Loading:</span> <span class="text-yellow-500">React
-                            v18.2.0</span><br>
-                        <span class="text-neutral-500">Loading:</span> <span class="text-yellow-500">Node.js</span>
-                    </div>
-                    <div class="mb-2 mt-4">
-                        <span class="text-neutral-600">[14:20:04]</span> Connecting to GitHub... <span
-                            class="text-emerald-500">Connected</span>
-                    </div>
-                    <div class="mb-2">
-                        <span class="text-neutral-600">[14:20:05]</span> Optimizing assets & chunks... <span
-                            class="text-emerald-500">Done (0.42s)</span>
-                    </div>
-                    <div class="mb-6 mt-4">
-                        <span class="text-neutral-600">[14:20:08]</span> <span
-                            class="text-indigo-400 bg-indigo-900/20 px-2 py-0.5 rounded">Portfolio ready for
-                            deployment.</span>
-                    </div>
-                    <div class="flex items-center">
-                        <span class="text-emerald-500 mr-2">➜</span> <span class="text-indigo-400 mr-2">~</span> <span
-                            class="animate-blink inline-block w-2.5 h-5 bg-neutral-400"></span>
-                    </div>
-                </div>
+      <div class="max-w-4xl w-full">
+        <div class="rounded-xl border border-neutral-800 bg-[#0a0a0a] overflow-hidden shadow-[0_0_50px_rgba(0,0,0,0.5)]">
+          <div class="flex items-center gap-2 px-4 py-3 border-b border-neutral-800 bg-[#0f0f0f]">
+            <div class="flex gap-2">
+              <div class="w-3 h-3 rounded-full bg-red-500/80"></div>
+              <div class="w-3 h-3 rounded-full bg-yellow-500/80"></div>
+              <div class="w-3 h-3 rounded-full bg-green-500/80"></div>
             </div>
+            <span class="ml-4 text-xs font-mono text-neutral-500 flex-1 text-center">obsann-dev — -zsh</span>
+          </div>
+          <div class="p-8 font-mono text-xs md:text-sm text-neutral-300 leading-relaxed min-h-[340px]">
+            <div class="mb-4">
+              <span class="text-emerald-500">➜</span> <span class="text-indigo-400">~</span> <span class="text-neutral-400">./deploy_portfolio.sh --production</span>
+            </div>
+            <div class="mb-2">
+              <span class="text-neutral-600">[14:20:01]</span> <span class="text-white">Initializing core modules...</span>
+            </div>
+            <div class="mb-2 pl-4 border-l border-neutral-800">
+              <span class="text-neutral-500">Loading:</span> <span class="text-yellow-500">JavaScript ES2024</span><br />
+              <span class="text-neutral-500">Loading:</span> <span class="text-yellow-500">TypeScript v5.3</span><br />
+              <span class="text-neutral-500">Loading:</span> <span class="text-yellow-500">React v18.2.0</span><br />
+              <span class="text-neutral-500">Loading:</span> <span class="text-yellow-500">Node.js</span>
+            </div>
+            <div class="mb-2 mt-4">
+              <span class="text-neutral-600">[14:20:04]</span> Connecting to GitHub... <span class="text-emerald-500">Connected</span>
+            </div>
+            <div class="mb-2">
+              <span class="text-neutral-600">[14:20:05]</span> Optimizing assets &amp; chunks... <span class="text-emerald-500">Done (0.42s)</span>
+            </div>
+            <div class="mb-6 mt-4">
+              <span class="text-neutral-600">[14:20:08]</span> <span class="text-indigo-400 bg-indigo-900/20 px-2 py-0.5 rounded">Portfolio ready for deployment.</span>
+            </div>
+            <div class="flex items-center">
+              <span class="text-emerald-500 mr-2">➜</span> <span class="text-indigo-400 mr-2">~</span> <span class="animate-blink inline-block w-2.5 h-5 bg-neutral-400"></span>
+            </div>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Contact Section -->
-    <section id="contact-section"
-        class="py-32 px-6 md:px-12 bg-[#030303] border-t border-b border-neutral-900/50 relative overflow-hidden">
-        <!-- Background glow -->
-        <div
-            class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[150px] pointer-events-none">
+    <section id="contact-section" class="py-32 px-6 md:px-12 bg-[#030303] border-t border-b border-neutral-900/50 relative overflow-hidden">
+      <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-indigo-600/10 rounded-full blur-[150px] pointer-events-none"></div>
+      <div class="max-w-4xl mx-auto text-center relative z-10">
+        <div class="mb-6">
+          <span class="text-[10px] font-mono text-indigo-400 uppercase tracking-widest border border-indigo-900/30 px-3 py-1 rounded-full bg-indigo-900/10">Let's Work Together</span>
         </div>
-
-        <div class="max-w-4xl mx-auto text-center relative z-10">
-            <div class="mb-6">
-                <span
-                    class="text-[10px] font-mono text-indigo-400 uppercase tracking-widest border border-indigo-900/30 px-3 py-1 rounded-full bg-indigo-900/10">Let's
-                    Work Together</span>
-            </div>
-            <h2 class="text-5xl md:text-7xl font-medium heading-font tracking-tight text-white mb-6 glow-text">
-                Get In Touch
-            </h2>
-            <p class="text-lg text-neutral-400 mb-12 max-w-xl mx-auto leading-relaxed">
-                Have a project in mind, a question, or just want to say hello? I'd love to hear from you.
-            </p>
-
-            <!-- CTA Buttons -->
-            <div class="flex flex-col sm:flex-row gap-5 justify-center items-center mb-16">
-                <a href="mailto:obsanhabtamu0@gmail.com"
-                    class="group flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full text-white text-sm font-mono uppercase tracking-wider hover:scale-105 hover:shadow-[0_0_40px_rgba(99,102,241,0.4)] transition-all duration-300 hover-trigger">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-                        <rect x="2" y="4" width="20" height="16" rx="2"></rect>
-                        <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"></path>
-                    </svg>
-                    obsanhabtamu0@gmail.com
-                </a>
-                <a href="https://github.com/Obsann" target="_blank"
-                    class="group flex items-center gap-3 px-8 py-4 border border-white/10 rounded-full text-neutral-300 text-sm font-mono uppercase tracking-wider hover:border-white/30 hover:text-white hover:scale-105 hover:bg-white/5 transition-all duration-300 hover-trigger">
-                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
-                        <path
-                            d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
-                    </svg>
-                    View GitHub
-                </a>
-            </div>
-
-            <!-- Quick connect info -->
-            <div class="flex flex-col sm:flex-row gap-8 justify-center text-sm font-mono text-neutral-500">
-                <div class="flex items-center gap-2 justify-center">
-                    <span class="relative flex h-2 w-2">
-                        <span
-                            class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                        <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-                    </span>
-                    <span>Available for freelance & full-time</span>
-                </div>
-                <div class="flex items-center gap-2 justify-center">
-                    <svg class="w-4 h-4 text-neutral-600" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                        stroke-width="1.5">
-                        <circle cx="12" cy="12" r="10"></circle>
-                        <polyline points="12 6 12 12 16 14"></polyline>
-                    </svg>
-                    <span>Typically responds within 24hrs</span>
-                </div>
-            </div>
+        <h2 class="text-5xl md:text-7xl font-medium heading-font tracking-tight text-white mb-6 glow-text">Get In Touch</h2>
+        <p class="text-lg text-neutral-400 mb-12 max-w-xl mx-auto leading-relaxed">Have a project in mind, a question, or just want to say hello? I'd love to hear from you.</p>
+        <div class="flex flex-col sm:flex-row gap-5 justify-center items-center mb-16">
+          <a href="mailto:obsanhabtamu0@gmail.com" class="group flex items-center gap-3 px-8 py-4 bg-gradient-to-r from-indigo-600 to-purple-600 rounded-full text-white text-sm font-mono uppercase tracking-wider hover:scale-105 hover:shadow-[0_0_40px_rgba(99,102,241,0.4)] transition-all duration-300 hover-trigger">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
+            </svg>
+            obsanhabtamu0@gmail.com
+          </a>
+          <a href="https://github.com/Obsann" target="_blank" rel="noreferrer" class="group flex items-center gap-3 px-8 py-4 border border-white/10 rounded-full text-neutral-300 text-sm font-mono uppercase tracking-wider hover:border-white/30 hover:text-white hover:scale-105 hover:bg-white/5 transition-all duration-300 hover-trigger">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 0c-6.626 0-12 5.373-12 12 0 5.302 3.438 9.8 8.207 11.387.599.111.793-.261.793-.577v-2.234c-3.338.726-4.033-1.416-4.033-1.416-.546-1.387-1.333-1.756-1.333-1.756-1.089-.745.083-.729.083-.729 1.205.084 1.839 1.237 1.839 1.237 1.07 1.834 2.807 1.304 3.492.997.107-.775.418-1.305.762-1.604-2.665-.305-5.467-1.334-5.467-5.931 0-1.311.469-2.381 1.236-3.221-.124-.303-.535-1.524.117-3.176 0 0 1.008-.322 3.301 1.23.957-.266 1.983-.399 3.003-.404 1.02.005 2.047.138 3.006.404 2.291-1.552 3.297-1.23 3.297-1.23.653 1.653.242 2.874.118 3.176.77.84 1.235 1.911 1.235 3.221 0 4.609-2.807 5.624-5.479 5.921.43.372.823 1.102.823 2.222v3.293c0 .319.192.694.801.576 4.765-1.589 8.199-6.086 8.199-11.386 0-6.627-5.373-12-12-12z" />
+            </svg>
+            View GitHub
+          </a>
         </div>
+        <div class="flex flex-col sm:flex-row gap-8 justify-center text-sm font-mono text-neutral-500">
+          <div class="flex items-center gap-2 justify-center">
+            <span class="relative flex h-2 w-2">
+              <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <span>Available for freelance &amp; full-time</span>
+          </div>
+          <div class="flex items-center gap-2 justify-center">
+            <svg class="w-4 h-4 text-neutral-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+            </svg>
+            <span>Typically responds within 24hrs</span>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <!-- Zoom Mask Section (Footer Intro) -->
+    <!-- Zoom Mask -->
     <section class="zoom-wrapper h-[200vh] relative bg-[#030303]">
-        <div class="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center">
-            <!-- Circular Mask Image: Abstract light tunnels -->
-            <div class="zoom-circle w-1 h-1 rounded-full overflow-hidden relative z-10">
-                <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/4734259a-bad7-422f-981e-ce01e79184f2_1600w.jpg"
-                    alt="Footer Visual" class="absolute inset-0 w-full h-full object-cover">
-                <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
-                    <h3 class="text-white text-5xl md:text-7xl heading-font font-medium tracking-tight">Let's Connect
-                    </h3>
-                </div>
-            </div>
+      <div class="sticky top-0 h-screen w-full overflow-hidden flex items-center justify-center">
+        <div class="zoom-circle w-1 h-1 rounded-full overflow-hidden relative z-10">
+          <img src="https://hoirqrkdgbmvpwutwuwj.supabase.co/storage/v1/object/public/assets/assets/4734259a-bad7-422f-981e-ce01e79184f2_1600w.jpg" alt="Footer Visual" class="absolute inset-0 w-full h-full object-cover" />
+          <div class="absolute inset-0 bg-black/30 flex items-center justify-center">
+            <h3 class="text-white text-5xl md:text-7xl heading-font font-medium tracking-tight">Let's Connect</h3>
+          </div>
         </div>
+      </div>
     </section>
 
     <!-- Footer -->
-    <footer id="contact" class="py-20 px-6 border-t border-white/10 text-center bg-[#030303] relative z-20">
-        <a href="mailto:obsanhabtamu0@gmail.com"
-            class="block text-[13vw] font-bold leading-none text-[#111] hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-b hover:from-white hover:to-neutral-500 transition-all duration-700 cursor-pointer hover-trigger heading-font tracking-tight">
-            OBSANN
-        </a>
-        <div
-            class="flex flex-col md:flex-row justify-between max-w-7xl mx-auto mt-20 text-xs font-mono text-neutral-600 gap-6">
-            <div class="flex gap-4">
-                <span>© 2026 OBSAN HABTAMU</span>
-                <span class="text-neutral-800">/</span>
-                <span class="text-green-500">ALL SYSTEMS OPERATIONAL</span>
-            </div>
-            <div class="flex gap-8 justify-center md:justify-end">
-                <a href="mailto:obsanhabtamu0@gmail.com" class="hover:text-white transition-colors">EMAIL</a>
-                <a href="https://github.com/Obsann" target="_blank"
-                    class="hover:text-white transition-colors">GITHUB</a>
-                <a href="#" class="hover:text-white transition-colors">LINKEDIN</a>
-            </div>
+    <footer id="footer" class="py-20 px-6 border-t border-white/10 text-center bg-[#030303] relative z-20">
+      <a href="mailto:obsanhabtamu0@gmail.com" class="block text-[13vw] font-bold leading-none text-[#111] hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-b hover:from-white hover:to-neutral-500 transition-all duration-700 cursor-pointer hover-trigger heading-font tracking-tight">
+        OBSANN
+      </a>
+      <div class="flex flex-col md:flex-row justify-between max-w-7xl mx-auto mt-20 text-xs font-mono text-neutral-600 gap-6">
+        <div class="flex gap-4">
+          <span>© 2026 OBSAN HABTAMU</span>
+          <span class="text-neutral-800">/</span>
+          <span class="text-green-500">ALL SYSTEMS OPERATIONAL</span>
         </div>
+        <div class="flex gap-8 justify-center md:justify-end">
+          <a href="mailto:obsanhabtamu0@gmail.com" class="hover:text-white transition-colors">EMAIL</a>
+          <a href="https://github.com/Obsann" target="_blank" rel="noreferrer" class="hover:text-white transition-colors">GITHUB</a>
+          <a href="#" class="hover:text-white transition-colors">LINKEDIN</a>
+        </div>
+      </div>
     </footer>
+  </div>
 
-
-
-    <!-- Scripts -->
-    <script>
-        // Initialize Smooth Scroll with more damping for luxury feel
-        const lenis = new Lenis({
-            duration: 1.4,
-            easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-            direction: 'vertical',
-            gestureDirection: 'vertical',
-            smooth: true,
-            mouseMultiplier: 0.8,
-            smoothTouch: false,
-            touchMultiplier: 2,
-        });
-
-        function raf(time) {
-            lenis.raf(time);
-            requestAnimationFrame(raf);
-        }
-        requestAnimationFrame(raf);
-
-        // GSAP Setup
-        gsap.registerPlugin(ScrollTrigger);
-
-        // 1. Shutter Animation on Load
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.body.classList.add('loaded');
-            }, 100);
-        });
-
-        // 2. Custom Cursor Logic
-        const cursor = document.querySelector('.cursor-dot');
-        const hoverTriggers = document.querySelectorAll('.hover-trigger');
-
-        document.addEventListener('mousemove', (e) => {
-            gsap.to(cursor, {
-                x: e.clientX,
-                y: e.clientY,
-                duration: 0.15,
-                ease: "power2.out"
-            });
-        });
-
-        hoverTriggers.forEach(el => {
-            el.addEventListener('mouseenter', () => document.body.classList.add('hovering'));
-            el.addEventListener('mouseleave', () => document.body.classList.remove('hovering'));
-        });
-
-        // 3. Grid Drawing
-        const gridCells = document.querySelectorAll('.grid-cell');
-        gridCells.forEach(cell => {
-            ScrollTrigger.create({
-                trigger: cell,
-                start: "top 85%",
-                onEnter: () => cell.classList.add('active')
-            });
-        });
-
-        // 4. Marquee Scroll (Slower and smoother)
-        gsap.to(".marquee-content", {
-            xPercent: -20,
-            ease: "none",
-            scrollTrigger: {
-                trigger: ".marquee-container",
-                scrub: 1.5
-            }
-        });
-
-        // 5. Text Highlight Manifesto
-        const manifesto = document.getElementById('manifesto');
-        const text = manifesto.innerText;
-        manifesto.innerHTML = "";
-        text.split(" ").forEach(word => {
-            const span = document.createElement("span");
-    
+  <!-- Scripts -->
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+  <script src="https://unpkg.com/lenis@1.1.18/dist/lenis.min.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>

@@ -150,6 +150,12 @@ function App() {
         <div className="max-w-7xl mx-auto px-6 pt-6">
           <div className="rounded-full border border-white/5 backdrop-blur-md px-6 py-4 flex items-center justify-between bg-black/40 transition-all duration-300 hover:border-white/10 hover:bg-black/60 hover:shadow-[0_0_30px_rgba(0,0,0,0.5)]">
             <div className="flex items-center gap-3">
+              <div className="flex items-center gap-3 text-[10px] font-mono uppercase tracking-wider text-neutral-500 bg-neutral-900/50 px-3 py-1.5 rounded-full border border-white/5">
+                <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                </span>
+              </div>
               <span className="text-sm font-semibold tracking-tight heading-font text-white">OBSANN / DEV</span>
             </div>
             <div className="hidden md:flex gap-8 text-[11px] font-mono uppercase tracking-widest text-neutral-400">
@@ -169,13 +175,6 @@ function App() {
                 Contact
                 <span className="absolute -bottom-1 left-0 w-0 h-[1px] bg-cyan-500 transition-all group-hover:w-full"></span>
               </a>
-            </div>
-            <div className="flex items-center gap-3 text-[10px] font-mono uppercase tracking-wider text-neutral-500 bg-neutral-900/50 px-3 py-1.5 rounded-full border border-white/5">
-              <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-              </span>
-              <span className="text-neutral-300">System v2.4</span>
             </div>
           </div>
         </div>
@@ -413,7 +412,7 @@ function App() {
           <div className="w-screen h-full flex items-center justify-center relative bg-white text-black">
             <div className="text-center relative z-10">
               <h3 className="text-8xl md:text-[10rem] font-semibold tracking-tighter mb-10 heading-font">Ready?</h3>
-              <a href="#contact" className="px-10 py-5 bg-black text-white rounded-full text-sm font-mono uppercase tracking-widest hover:scale-105 transition-transform hover-trigger inline-block hover:shadow-2xl hover:shadow-black/20">Initialize Project</a>
+              <a href="#contact-section" className="px-10 py-5 bg-black text-white rounded-full text-sm font-mono uppercase tracking-widest hover:scale-105 transition-transform hover-trigger inline-block hover:shadow-2xl hover:shadow-black/20">Initialize Project</a>
             </div>
             <div className="absolute inset-0 opacity-5 bg-[radial-gradient(#000_1px,transparent_1px)] [background-size:16px_16px]"></div>
           </div>
@@ -554,7 +553,7 @@ function App() {
       </section>
 
       {/* Footer */}
-      <footer id="contact" className="py-20 px-6 border-t border-white/10 text-center bg-[#030303] relative z-20">
+      <footer id="footer" className="py-20 px-6 border-t border-white/10 text-center bg-[#030303] relative z-20">
         <a href="mailto:obsanhabtamu0@gmail.com" className="block text-[13vw] font-bold leading-none text-[#111] hover:text-transparent hover:bg-clip-text hover:bg-gradient-to-b hover:from-white hover:to-neutral-500 transition-all duration-700 cursor-pointer hover-trigger heading-font tracking-tight">
           OBSANN
         </a>
