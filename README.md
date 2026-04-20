@@ -115,7 +115,7 @@ Full-featured auction website — create listings, place bids, and manage sales 
 <tr>
 <td width="50%">
 
-### 🏛️ [RMS Kebele Management]((https://github.com/Obsann/RMS-final.git))
+### 🏛️ [RMS Kebele Management](https://github.com/Obsann/RMS-final.git)
 Resource management system for local admin units — registering, updating, and tracking resources.
 
 `TypeScript` `JavaScript` `CSS`
